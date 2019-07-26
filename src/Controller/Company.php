@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company as CompanyEntity;
 use App\Form\CompanyType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,15 +20,17 @@ class Company extends AbstractController
     public function indexAction(): Response
     {
         $company = new CompanyEntity();
-        $form    = $this->createForm(CompanyType::class, $company);
+        $form = $this->createForm(CompanyType::class, $company, [
+            'action' => $this->generateUrl('company_profile')
+        ]);
 
         return $this->render('company/index.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
     /**
-     * @Route("/company", methods={"POST"}, name="company_new")
+     * @Route("/company", methods={"POST"}, name="company_profile")
      * @param Request $request
      *
      * @return Response
@@ -37,12 +40,10 @@ class Company extends AbstractController
         $company = new CompanyEntity();
         $form    = $this->createForm(CompanyType::class, $company);
 
-        /*if ($form->isSubmitted() && $form->isValid()) {
-            return;
-        }*/
+        if ($form->isSubmitted() && !$form->isValid()) {
+            return $this->redirectToRoute('company_index');
+        }
 
-        return $this->render('', [
-            'form' => $form->createView(),
-        ]);
+        return $this->render('company/profile.html.twig');
     }
 }
