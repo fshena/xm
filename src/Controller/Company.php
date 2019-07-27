@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Company as CompanyEntity;
 use App\Form\CompanyType;
+use App\Service\CompanySymbol;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,37 +13,47 @@ use Symfony\Component\Routing\Annotation\Route;
 class Company extends AbstractController
 {
     /**
-     * @Route("/", methods={"GET"}, name="company_index")
+     * @Route("/", methods={"GET","POST"}, name="company_index")
+     * @param Request       $request
+     * @param CompanySymbol $companySymbol $
      *
      * @return Response
      */
-    public function indexAction(): Response
+    public function indexAction(Request $request, CompanySymbol $companySymbol, \Swift_Mailer $mailer): Response
     {
-        $company = new CompanyEntity();
-        $form = $this->createForm(CompanyType::class, $company, [
-            'action' => $this->generateUrl('company_profile')
+        $form = $this->createForm(CompanyType::class, new CompanyEntity(), [
+            'action' => $this->generateUrl('company_index'),
         ]);
 
-        return $this->render('company/index.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
+        $data = ['form' => $form->createView()];
 
-    /**
-     * @Route("/company", methods={"POST"}, name="company_profile")
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function newAction(Request $request): Response
-    {
-        $company = new CompanyEntity();
-        $form    = $this->createForm(CompanyType::class, $company);
+        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && !$form->isValid()) {
-            return $this->redirectToRoute('company_index');
+        // if error pass them to the view
+        if ($form->isSubmitted() && ! $form->isValid()) {
+            $data['validationErrors'] = $form->getErrors(true);
         }
 
-        return $this->render('company/profile.html.twig');
+        if ($form->isSubmitted() && $form->isValid()) {
+            // get submitted data
+            $symbol   = mb_strtoupper($form->getData()->getCompanySymbol());
+            $fromDate = $form->getData()->getFromDate()->format('Y-m-d');
+            $toDate   = $form->getData()->getToDate()->format('Y-m-d');
+            $email    = $form->getData()->getEmail();
+
+            // get data from API
+            $results = $companySymbol->getDataForSymbol($symbol, $fromDate, $toDate);
+            $data    = array_merge($data, $results);
+
+            // send email
+            $message = (new \Swift_Message($symbol))
+                ->setFrom('send@example.com')
+                ->setTo($email)
+                ->setBody("From {$fromDate} to {$toDate}", 'text/html');
+
+            $mailer->send($message);
+        }
+
+        return $this->render('company/index.html.twig', $data);
     }
 }

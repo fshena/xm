@@ -17,14 +17,16 @@ class CompanyType extends AbstractType
             ->add('companySymbol')
             ->add('fromDate', DateType::class, [
                 'widget' => 'single_text',
-                'years' => range(date('Y') - 50, date('Y')),
+                'format' => 'dd-MM-yyyy',
+                'html5' => false,
                 'attr' => [
                     'id' => 'fromDate'
                 ]
             ])
             ->add('toDate', DateType::class, [
                 'widget' => 'single_text',
-                'years' => range(date('Y') - 50, date('Y')),
+                'format' => 'dd-MM-yyyy',
+                'html5' => false,
                 'attr' => [
                     'id' => 'toDate'
                 ]
@@ -37,6 +39,7 @@ class CompanyType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Company::class,
+            'error_bubbling' => true
         ]);
     }
 }

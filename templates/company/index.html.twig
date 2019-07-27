@@ -5,5 +5,40 @@
 {% block title %}XM Application{% endblock %}
 
 {% block body %}
+    {% if validationErrors is defined %}
+        <div class="alert alert-danger mt-5" role="alert">
+            {{ validationErrors }}
+        </div>
+    {% endif %}
+
     {{ form(form) }}
+
+    {% if table is defined and table is not empty %}
+        <div class="mt-5 table-wrapper-scroll-y my-custom-scrollbar">
+            <table class="table">
+                <thead>
+                {% for header in table[0] %}
+                    {% if loop.index < 7 %}
+                        <th>{{ header }}</th>
+                    {% endif %}
+                {% endfor %}
+                </thead>
+                {% for row in table %}
+                    <tr>
+                        {% if loop.index > 1 %}
+                            {% for cell in row %}
+                                {% if loop.index < 7 %}
+                                    <td>{{ cell }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
+    {% if chart is defined %}
+        <div id="chart" class="mt-5" data-chart-open="{{ chart.dateOpen|json_encode }}" data-chart-close="{{ chart.dateClose|json_encode }}"></div>
+    {% endif %}
 {% endblock %}

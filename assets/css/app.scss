@@ -1,5 +1,18 @@
+@import "~bootstrap/scss/bootstrap.scss";
+@import "~jquery-ui/themes/base/all.css";
+
 select {
-    margin-right: 15px;
+  margin-right: 15px;
 }
 
-@import "~bootstrap/scss/bootstrap.scss";
+.my-custom-scrollbar {
+  position: relative;
+  height: 600px;
+  overflow: auto;
+}
+
+.table-wrapper-scroll-y {
+  display: block;
+}
+
+

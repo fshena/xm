@@ -3,25 +3,25 @@
 namespace App\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator\Constraint as CustomValidator;
 
 class Company
 {
     /**
      * @Assert\NotBlank
+     * @CustomValidator\CompanySymbol
      */
     protected $companySymbol;
 
     /**
      * @Assert\NotBlank
      * @Assert\Date
-     * @Assert\Expression("value <= this.toDate")
      */
-    protected  $fromDate;
+    protected $fromDate;
 
     /**
      * @Assert\NotBlank
      * @Assert\Date
-     * @Assert\Expression("value >= this.fromDate")
      */
     protected $toDate;
 
